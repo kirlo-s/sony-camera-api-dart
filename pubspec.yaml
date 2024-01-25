@@ -11,6 +11,8 @@ dependencies:
   udp: ^5.0.3
   flutter:
     sdk: flutter
+  xml: ^6.5.0
+  requests: ^4.7.0
 
 dev_dependencies:
   flutter_test:
