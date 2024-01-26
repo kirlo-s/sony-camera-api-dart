@@ -1,4 +1,6 @@
 import "package:requests/requests.dart";
+import "package:sony_camera_api/camera.dart";
+import 'core.dart';
 void main() async{
 
   var url_camera = "http://192.168.122.1:8080/sony/camera";
@@ -18,6 +20,4 @@ void main() async{
   r.raiseForStatus();
   dynamic json = r.json();
   print(json);
-
-
 }
