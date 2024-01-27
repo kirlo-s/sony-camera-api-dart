@@ -24,7 +24,7 @@ class Core{
       r.raiseForStatus();
       responce = r.json();
     } on Exception{
-      responce = {"error" : [1601,"Error"]};
+      responce = {"error" : [1601,"Timeout"]};
     }
     return responce;
   }

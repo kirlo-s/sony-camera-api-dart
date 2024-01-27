@@ -86,17 +86,18 @@ void main(List<String> args) async {
   camera.endpoint = "http://192.168.122.1:8080/sony";
   camera.initializeAction();
   
-  int a = await camera.action.getCameraFunction();
-  print(a);
   int s = await camera.action.startRecMode();
   print(s);
-  await Future.delayed(Duration(seconds: 10));
-  a = await camera.action.getCameraFunction();
+  int a = await camera.action.getCameraFunction();
   print(a);
   print(await camera.action.setCameraFunction(1));
   var m = await camera.action.getStorageInfo();
+  var source = await camera.action.getSource();
+  print(source);
+  var uri = "storage:memoryCard1?path=2024-01-23";
+  dynamic c = await camera.action.getContentList(uri,0,100,0,0);
+  print("$c");
   print(m);
-  await Future.delayed(Duration(seconds: 10));
   s = await camera.action.stopRecMode();
   return;
 }
