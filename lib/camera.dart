@@ -13,11 +13,12 @@ class Camera{
   String endpoint = "";
   late Action action;
 
-  void initializeAction(){
+  void initializeDirectly(String endpoint){
+    this.endpoint = endpoint;
     action = Action(this.endpoint);
   }
   
-  Future<bool> setEndpoint(int timeout) async {
+  Future<bool> searchCamera(int timeout) async {
     var xml_url = await _discover(timeout);  
     var ep = await _getEndpointFromXml(xml_url);
     this.endpoint = ep;
@@ -76,15 +77,13 @@ class Camera{
 
 
 }
+
+/*
 void main(List<String> args) async {
   Camera camera = Camera();
-  //bool f = await camera.setEndpoint(60);
+  bool f = await camera.searchCamera(60);
   
-  /*
-    Delete Later
-  */
-  camera.endpoint = "http://192.168.122.1:8080/sony";
-  camera.initializeAction();
+  //camera.initializeDirectly("http://192.168.122.1:8080/sony");
   
   int s = await camera.action.startRecMode();
   print(s);
@@ -96,8 +95,15 @@ void main(List<String> args) async {
   print(source);
   var uri = "storage:memoryCard1?path=2024-01-23";
   dynamic c = await camera.action.getContentList(uri,0,100,0,0);
-  print("$c");
+  for(Map<String,dynamic> p in c){
+    print(p);
+  }
+
+  var p = await Requests.get("http://192.168.122.1:8080/contentstransfer/thumb/index%3A%2F%2F1000%2F00000001-default%2F0000001B-00000943_27_1_1000");
+  
+  print(p.body.runtimeType);
   print(m);
   s = await camera.action.stopRecMode();
   return;
 }
+*/

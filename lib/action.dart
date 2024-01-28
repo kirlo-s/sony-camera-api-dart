@@ -1,3 +1,5 @@
+import "package:requests/requests.dart";
+
 import "core.dart";
 
 class Action{
@@ -165,15 +167,17 @@ class Action{
 
   ///param
   ///
-  ///type 0:non-specified,1:still,2:movie_mp4,3:movie_xavcs
+  ///`String uiri` uri string of sdcard or each date 
   ///
-  ///view 0:date,1:flat
+  ///`int type` 0:non-specified,1:still,2:movie_mp4,3:movie_xavcs
   ///
-  ///target 0:none,1,all
+  ///`int view` 0:date,1:flat
+  ///
+  ///`int target` 0:none,1,all
   ///
   ///return
   ///
-  ///positive value:content number,negative value:error code  
+  ///`int` positive value:content ncount,negative value:error code  
   Future<int> getContentCount(String uri,int type,int view,int target) async{
     dynamic t;
     String v;
@@ -227,6 +231,18 @@ class Action{
     return r;
   }
 
+  /// param
+  /// 
+  /// `String uri` uri string of sdcard or each date 
+  /// 
+  /// `int stidx` start content index of list
+  /// 
+  /// `int cnt` how many contents will be listed
+  /// 
+  ///`int type` 0:non-specified,1:still,2:movie_mp4,3:movie_xavcs
+  ///
+  ///`int view` 0:date,1:flat
+  ///  
   Future<List<dynamic>> getContentList(String uri,int stidx,int cnt,int type,int view) async {    
     dynamic t;
     String v;
@@ -279,4 +295,5 @@ class Action{
     }
     return r;
   }
+
 }
