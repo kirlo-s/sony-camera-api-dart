@@ -18,14 +18,15 @@ class Camera{
     action = Action(this.endpoint);
   }
   
-  Future<bool> searchCamera(int timeout) async {
+  Future<Map<String,dynamic>> searchCamera(int timeout) async {
     var xml_url = await _discover(timeout);  
     var ep = await _getEndpointFromXml(xml_url);
+    Map<String,dynamic> data = await _getCameraDataFromXml(xml_url);
     this.endpoint = ep;
     if(endpoint.isNotEmpty){
       action = Action(this.endpoint);
     }
-    return endpoint.isNotEmpty ? true : false;
+    return data;
   }
 
   Future<String> _discover(int timeout) async{
@@ -76,6 +77,21 @@ class Camera{
   }
 
 
+  Future<Map<String,dynamic>> _getCameraDataFromXml(String xml_url) async{
+    Map<String,dynamic> map ={
+      "get" : false,
+      "name"   : ""
+    };
+    try{
+      var xmlResponse = await Requests.get(xml_url);
+      var xmlData = XmlDocument.parse(xmlResponse.content());
+      var n = xmlData.findAllElements('friendlyName');
+      map["name"] = n.first.innerText;
+      map["get"] = true;
+    }catch(any){
+    }
+    return map;
+  }  
 }
 
 /*
@@ -94,7 +110,7 @@ void main(List<String> args) async {
   var source = await camera.action.getSource();
   print(source);
   var uri = "storage:memoryCard1?path=2024-01-23";
-  dynamic c = await camera.action.getContentList(uri,0,100,0,0);
+  dynamic c = await camera.action.getContentList(uri,0,100,0,0,0);
   for(Map<String,dynamic> p in c){
     print(p);
   }

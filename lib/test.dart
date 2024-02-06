@@ -1,6 +1,16 @@
 import "package:requests/requests.dart";
 import "package:sony_camera_api/camera.dart";
 import 'core.dart';
+
+
+void main() async{
+  Camera camera = Camera();
+  var ep = await camera.searchCamera(60);
+  print(ep["get"]);
+  print(ep["name"]);
+}
+
+/*
 void main() async{
 
   var url_camera = "http://192.168.122.1:8080/sony/camera";
@@ -21,3 +31,4 @@ void main() async{
   dynamic json = r.json();
   print(json);
 }
+*/

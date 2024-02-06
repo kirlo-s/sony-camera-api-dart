@@ -242,10 +242,13 @@ class Action{
   ///`int type` 0:non-specified,1:still,2:movie_mp4,3:movie_xavcs
   ///
   ///`int view` 0:date,1:flat
+  ///
+  ///`int sort` 0:ascending,1:descending
   ///  
-  Future<List<dynamic>> getContentList(String uri,int stidx,int cnt,int type,int view) async {    
+  Future<List<dynamic>> getContentList(String uri,int stidx,int cnt,int type,int view,int sort) async {    
     dynamic t;
     String v;
+    String s;
     List<dynamic> r = [];
     switch(type){
       case 0:
@@ -273,6 +276,17 @@ class Action{
         break;
       default:
         v = "date";
+        break;
+    }
+    switch(sort){
+      case 0:
+        s = "ascending";
+        break;
+      case 1:
+        s = "descending";
+        break;
+      default:
+        s = "ascending";
         break;
     }
     String method = "getContentList";
