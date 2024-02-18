@@ -1,5 +1,11 @@
 import "package:requests/requests.dart";
 
+enum ResponceStatus {success,illegalArgument,illegalRequest,noSuchMethod_,otherErrors}
+enum CameraFunction {remoteShooting,contentsTransfer,otherFunction}
+enum ContentType {nonPpecified,still,mp4,xavcs}
+enum ContentView {date,flat}
+enum ContentSort {ascending,descending}
+
 class Core{
   static String getavContentUrl(String url) {
     String avContentUrl = "$url/avContent";
@@ -40,13 +46,165 @@ class Core{
     return body;
   }
 
-  static int getStatusCode(Map<String,dynamic> responce){
-    int status;
+}
+
+class CameraStatusPayload{
+  late ResponceStatus status;
+
+  CameraStatusPayload(Map<String,dynamic> responce){
+    status = getStatus(responce);
+  }
+
+  ResponceStatus getStatus(Map<String,dynamic> responce){
+    int s;
     if(responce.containsKey("error")){
-      status = responce["error"][0];
+      s = responce["error"][0];
     }else{
-      status = 0;
+      s = 0;
     }
-    return status;
+    switch(s){
+      case 0:
+        return ResponceStatus.success;
+      case 3:
+        return ResponceStatus.illegalArgument;
+      case 5:
+        return ResponceStatus.illegalRequest;
+      case 12:
+        return ResponceStatus.noSuchMethod_;
+      default:
+        return ResponceStatus.otherErrors;
+    }
+  }
+}
+
+class APIListPayload extends CameraStatusPayload{
+  late List<String> apiList;
+  APIListPayload(Map<String,dynamic> responce): super(responce){
+    _setList(responce);
+  }
+  void _setList(Map<String,dynamic> responce){
+    if(status == ResponceStatus.success){
+      apiList = responce["result"][0];
+    }else{
+      apiList = [];
+    }
+  }
+}
+
+class StorageInformationPayload extends CameraStatusPayload{
+  String storageDescription = "";
+  int numberOfRecordableImages = 0;
+  bool recordTarget = false;
+  String storageID = "No Media";
+  int recordableTime = 0;
+  
+  StorageInformationPayload(Map<String,dynamic> responce): super(responce){
+    _setInfo(responce);
+  }
+
+  void _setInfo(Map<String,dynamic> responce){
+    if(status == ResponceStatus.success){
+      storageDescription        = responce["result"][0][0]["storageDescription"];
+      numberOfRecordableImages  = responce["result"][0][0]["numberOfRecordableImages"];
+      recordTarget              = responce["result"][0][0]["recordTarget"];
+      storageID                 = responce["result"][0][0]["storageID"];
+      recordableTime            = responce["result"][0][0]["recordableTime"];      
+    }
+  }
+}
+
+class CameraFunctionPayload extends CameraStatusPayload{
+  CameraFunction function = CameraFunction.otherFunction;
+  CameraFunctionPayload(Map<String,dynamic> responce): super(responce){
+    _setFunction(responce);
+  }
+
+  void _setFunction(Map<String,dynamic> responce){
+    if(status == ResponceStatus.success){
+      var s = responce["result"][0];
+      if(s == "Remote Shooting"){
+        function = CameraFunction.remoteShooting;
+      }
+      if(s == "Contents Transfer"){
+        function = CameraFunction.contentsTransfer;
+      }
+      if(s == "Other Funciton"){
+        function = CameraFunction.otherFunction;
+      }
+    }
+  }
+}
+
+class SourcePayload extends CameraStatusPayload{
+  String source = "";
+  SourcePayload(Map<String,dynamic> responce): super(responce){
+    _setData(responce);
+  }
+  void _setData(Map<String,dynamic> responce){
+    if(status == ResponceStatus.success){
+      source = responce["result"][0][0]["source"];
+    }
+  }
+}
+
+class SchemePayload extends CameraStatusPayload{
+  String scheme = "";
+  SchemePayload(Map<String,dynamic> responce): super(responce){
+    _setData(responce);
+  }
+
+  void _setData(Map<String,dynamic> responce){
+    if(status == ResponceStatus.success){
+      scheme = responce["result"][0][0]["scheme"];
+    }
+  }
+}
+
+class ContentCountPayload extends CameraStatusPayload{
+  int contentCount = -1;
+  ContentCountPayload(Map<String,dynamic> responce):super(responce){
+    _setData(responce);
+  }
+  void _setData(Map<String,dynamic> responce){
+    if(status == ResponceStatus.success){
+      contentCount = responce["result"][0]["count"];
+    }
+  }
+}
+
+class StillImageData{
+  late String uri;
+  late String fileName;
+  late String format;
+  late String originalUrl;
+  late String smallUrl;
+  late String largeUrl;
+  late String thumbnailUrl;
+  late DateTime createdTime;
+
+  StillImageData(Map<String,dynamic> imageData){
+    _parseFromResult(imageData);
+  }
+
+  void _parseFromResult(Map<String,dynamic> data){
+    uri = data["uri"];
+    fileName = data["content"]["original"][0]["fileName"];
+    format = data["content"]["original"][0]["stillObject"];
+    originalUrl = data["content"]["original"][0]["url"];
+    smallUrl = data["content"]["smallUrl"];
+    largeUrl = data["content"]["largeUrl"];
+    thumbnailUrl = data["content"]["thumbnailUrl"];
+    createdTime = DateTime.parse(data["createdTime"]);
+  }
+}
+
+class ContentListPayload extends CameraStatusPayload{
+  List<StillImageData> list = [];
+  late Map<String,dynamic> responce;
+  ContentListPayload(this.responce):super(responce){
+    _setList(responce);
+  }
+  void _setList(Map<String,dynamic>responce){
+    
   }
 }

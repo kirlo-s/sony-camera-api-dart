@@ -1,4 +1,5 @@
 import "package:requests/requests.dart";
+import "package:sony_camera_api/camera.dart";
 
 import "core.dart";
 
@@ -6,131 +7,110 @@ class Action{
   String endpoint;
   Action(String this.endpoint);
 
-  Future<List> getAvailableApiList() async{
+  Future<APIListPayload> getAvailableApiList() async{
     String method = "getAvailableApiList";
     dynamic params = [];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getCameraUrl(endpoint), method, params, id, version);
-    int status = Core.getStatusCode(responce);
-    List r = [];
-    if(status == 0){
-      r = responce["result"][0];
-    }
-    return r;
+    APIListPayload list = APIListPayload(responce);
+    return list;
   }
 
-  Future<int> startRecMode() async{
+  Future<CameraStatusPayload> startRecMode() async{
     String method = "startRecMode";
     dynamic params = [];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getCameraUrl(endpoint), method, params, id, version);
-    int status = Core.getStatusCode(responce);
-    await _waitUntileModeChange(0);
-    return status;
+    CameraStatusPayload payload = CameraStatusPayload(responce);
+    await _waitUntileModeChange(CameraFunction.remoteShooting);
+    return payload;
   }
 
-  Future<int> stopRecMode() async{
+  Future<CameraStatusPayload> stopRecMode() async{
     String method = "stopRecMode";
     dynamic params = [];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getCameraUrl(endpoint), method, params, id, version);
-    int status = Core.getStatusCode(responce);
-    await _waitUntileModeChange(2);
-    return status;
+    CameraStatusPayload payload = CameraStatusPayload(responce);
+    await _waitUntileModeChange(CameraFunction.otherFunction);
+    return payload;
   }
 
-  ///param/mode:
+  ///param/funciton:
   ///
-  ///0:Remote Shooting,1:Contents Transfer,2:Other Funciton 
-  Future<int> _waitUntileModeChange(int mode) async{
-    int cameraFunction = -1;
+  ///Remote Shooting,Contents Transfer,Other Funciton 
+  Future<int> _waitUntileModeChange(CameraFunction function) async{
+    CameraFunction cameraFunction = CameraFunction.otherFunction;
     int i = 0;
-    while(cameraFunction != mode){
-      cameraFunction = await getCameraFunction();
-      await Future.delayed(Duration(seconds: 1));
+    while(cameraFunction != function){
+      CameraFunctionPayload payload = await getCameraFunction();
+      cameraFunction = payload.function;
+      await Future.delayed(const Duration(seconds: 1));
       i++;
     }
     return i;
   }  
 
-  Future<Map<String,dynamic>> getStorageInfo() async{
+  Future<StorageInformationPayload> getStorageInfo() async{
     String method = "getStorageInformation";
     dynamic params = [];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getCameraUrl(endpoint), method, params, id, version);
-    int status = Core.getStatusCode(responce);
-    var r ={
-      "storageDescription":"",
-      "numberOfRecordableImages":0,
-      "recordTarget" : false,
-      "storageID": "No Media",
-      "recordableTime": 0,
-      "responce" : false
-    };
-     
-    if(status == 0){
-      r["storageDescription"]       = responce["result"][0][0]["storageDescription"];
-      r["numberOfRecordableImages"] = responce["result"][0][0]["numberOfRecordableImages"];
-      r["recordTarget"]             = responce["result"][0][0]["recordTarget"];
-      r["storageID"]                = responce["result"][0][0]["storageID"];
-      r["recordableTime"]           = responce["result"][0][0]["recordableTime"];
-      r["responce"]                 = true;
-    }
-    return r;
+    StorageInformationPayload payload = StorageInformationPayload(responce);
+
+    return payload;
   }  
   
   ///return:  
   ///
   ///0:Remote Shooting,1:Contents Transfer,2:Other Function,-1:Error
-  Future<int> getCameraFunction() async{
-    int r = 0;
+  Future<CameraFunctionPayload> getCameraFunction() async{
     String method = "getCameraFunction";
     dynamic params = [];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getCameraUrl(endpoint), method, params, id, version);  
-    int status = Core.getStatusCode(responce);
-    if(status == 0){
-      String s = responce["result"][0];
-      if(s == "Remote Shooting"){
-        r = 0;
-      }
-      if(s == "Contents Transfer"){
-        r = 1;
-      }
-      if(s == "Other Function"){
-        r = 2;
-      }
-    }else{
-      r = -1;
-    }
-    return r;
+    CameraFunctionPayload payload = CameraFunctionPayload(responce);
+    return payload;
   }
+  
 
   ///param:
   ///
-  ///0:Remote Shooting,1:Contents Transfer
-  Future<int> setCameraFunction(int index) async { 
-    final cameraFunction = ["Remote Shooting","Contents Transfer"];
+  ///Remote Shooting,Contents Transfer
+  Future<CameraStatusPayload> setCameraFunction(CameraFunction function) async { 
+    String cameraFunction = "Remote Shooting";
+
+    switch(function){
+      case CameraFunction.remoteShooting:
+        cameraFunction = "Remote Shooting";
+        break;
+      case CameraFunction.contentsTransfer:
+        cameraFunction = "Contents Transfer";
+        break;
+      default:
+        cameraFunction = "Remote Shooting";
+        break;
+    }
     String method = "setCameraFunction";
     dynamic params = [
-      cameraFunction[index]
+      cameraFunction
     ];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getCameraUrl(endpoint), method, params, id, version);  
-    int status = Core.getStatusCode(responce);
-    await _waitUntileModeChange(1);
-    return status;
+    CameraStatusPayload payload = CameraStatusPayload(responce);
+    await _waitUntileModeChange(function);
+    return payload;
   }
 
-  Future<String> getSource() async{
-    String scheme = await _getSchemeList();
-    String r = "";
+  Future<SourcePayload> getSource() async{
+    SchemePayload schemePayload = await _getSchemeList();
+    String scheme = schemePayload.scheme;
     String method = "getSourceList";
     dynamic params = [
       {
@@ -140,59 +120,35 @@ class Action{
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getavContentUrl(endpoint), method, params, id, version);
-    int status = Core.getStatusCode(responce);
-    if(status == 0){
-      r = responce["result"][0][0]["source"];
-    }else{
-      r = status.toString();
-    }
-    return r;
+    SourcePayload payload = SourcePayload(responce);
+    return payload;
   }
   
-  Future<String> _getSchemeList() async{
-    String r = "";
+  Future<SchemePayload> _getSchemeList() async{
     String method = "getSchemeList";
     dynamic params = [];
     int id = 1;
     String version = "1.0";
     var responce = await Core.call(Core.getavContentUrl(endpoint), method, params, id, version);  
-    int status = Core.getStatusCode(responce);
-    if(status == 0){
-      r = responce["result"][0][0]["scheme"];
-    }else{
-      r = status.toString();
-    }
-    return r;
+    SchemePayload payload = SchemePayload(responce);
+    return payload;
   }
 
-  ///param
-  ///
-  ///`String uiri` uri string of sdcard or each date 
-  ///
-  ///`int type` 0:non-specified,1:still,2:movie_mp4,3:movie_xavcs
-  ///
-  ///`int view` 0:date,1:flat
-  ///
-  ///`int target` 0:none,1,all
-  ///
-  ///return
-  ///
-  ///`int` positive value:content ncount,negative value:error code  
-  Future<int> getContentCount(String uri,int type,int view,int target) async{
+  Future<ContentCountPayload> getContentCount(String uri,ContentType type,ContentView view,bool isTargetAll) async{
     dynamic t;
     String v;
     int r = 0;
     switch(type){
-      case 0:
+      case ContentType.nonPpecified:
         t = null;
         break;
-      case 1:
+      case ContentType.still:
         t = "still";
         break;
-      case 2:
+      case ContentType.mp4:
         t = "movie_mp4";
         break;
-      case 3:
+      case ContentType.xavcs:
         t = "movie_xavcs";
         break;
       default:
@@ -200,10 +156,10 @@ class Action{
         break;
     }
     switch(view){
-      case 0:
+      case ContentView.date:
         v = "date";
         break;
-      case 1:
+      case ContentView.flat:
         v = "flat";
         break;
       default:
@@ -214,7 +170,7 @@ class Action{
     dynamic params = [
       {
         "uri"   : uri,
-        "target": target == 1 ? "all": null,
+        "target": isTargetAll ? "all": null,
         "type"  : t,
         "view"  : v
       }
@@ -222,45 +178,25 @@ class Action{
     int id = 1;
     String version = "1.2"; 
     var responce = await Core.call(Core.getavContentUrl(endpoint), method, params, id, version);  
-    int status = Core.getStatusCode(responce);
-    if(status == 0){
-      r = responce["result"][0]["count"];
-    }else{
-      r = -status;
-    }
-    return r;
+    ContentCountPayload payload = ContentCountPayload(responce);
+    return payload;
   }
 
-  /// param
-  /// 
-  /// `String uri` uri string of sdcard or each date 
-  /// 
-  /// `int stidx` start content index of list
-  /// 
-  /// `int cnt` how many contents will be listed
-  /// 
-  ///`int type` 0:non-specified,1:still,2:movie_mp4,3:movie_xavcs
-  ///
-  ///`int view` 0:date,1:flat
-  ///
-  ///`int sort` 0:ascending,1:descending
-  ///  
-  Future<List<dynamic>> getContentList(String uri,int stidx,int cnt,int type,int view,int sort) async {    
+  Future<ContentListPayload> getContentList(String uri,int startidx,int count,ContentType type,ContentView view,ContentSort sort) async {    
     dynamic t;
     String v;
     String s;
-    List<dynamic> r = [];
     switch(type){
-      case 0:
+      case ContentType.nonPpecified:
         t = null;
         break;
-      case 1:
+      case ContentType.still:
         t = "still";
         break;
-      case 2:
+      case ContentType.mp4:
         t = "movie_mp4";
         break;
-      case 3:
+      case ContentType.xavcs:
         t = "movie_xavcs";
         break;
       default:
@@ -268,10 +204,10 @@ class Action{
         break;
     }
     switch(view){
-      case 0:
+      case ContentView.date:
         v = "date";
         break;
-      case 1:
+      case ContentView.flat:
         v = "flat";
         break;
       default:
@@ -279,10 +215,10 @@ class Action{
         break;
     }
     switch(sort){
-      case 0:
+      case ContentSort.ascending:
         s = "ascending";
         break;
-      case 1:
+      case ContentSort.descending:
         s = "descending";
         break;
       default:
@@ -293,21 +229,18 @@ class Action{
     dynamic params = [
       {
         "uri"   : uri,
-        "stIdx" : stidx,
+        "stIdx" : startidx,
+        "cnt"   : count,
         "type"  : t,
         "view"  : v,
-        "sort"  : "ascending"
+        "sort"  : s
       }
     ];
     int id = 1;
     String version = "1.3"; 
     var responce = await Core.call(Core.getavContentUrl(endpoint), method, params, id, version);  
-    int status = Core.getStatusCode(responce);
-  
-    if(status == 0){
-      r = responce["result"][0];
-    }
-    return r;
+    ContentListPayload payload = ContentListPayload(responce);
+    return payload;
   }
 
 }

@@ -1,7 +1,7 @@
 library sony_camera_api;
 
-
 import 'dart:io';
+import 'package:sony_camera_api/core.dart';
 import 'package:udp/udp.dart';
 import 'package:xml/xml.dart';
 import 'package:requests/requests.dart';
@@ -16,15 +16,16 @@ class Camera{
   void initializeDirectly(String endpoint){
     this.endpoint = endpoint;
     action = Action(this.endpoint);
+    action.setCameraFunction(CameraFunction.remoteShooting);
   }
   
-  Future<Map<String,dynamic>> searchCamera(int timeout) async {
+  Future<CameraDataPayload> searchCamera(int timeout) async {
     var xml_url = await _discover(timeout);  
     var ep = await _getEndpointFromXml(xml_url);
-    Map<String,dynamic> data = await _getCameraDataFromXml(xml_url);
-    this.endpoint = ep;
+    CameraDataPayload data = await _getCameraDataFromXml(xml_url);
+    endpoint = ep;
     if(endpoint.isNotEmpty){
-      action = Action(this.endpoint);
+      action = Action(endpoint);
     }
     return data;
   }
@@ -76,23 +77,31 @@ class Camera{
     return endpoint;
   }
 
-
-  Future<Map<String,dynamic>> _getCameraDataFromXml(String xml_url) async{
-    Map<String,dynamic> map ={
-      "get" : false,
-      "name"   : ""
-    };
+  Future<CameraDataPayload> _getCameraDataFromXml(String xml_url) async{
+    CameraDataPayload c = CameraDataPayload(get: false, name: "");
     try{
       var xmlResponse = await Requests.get(xml_url);
       var xmlData = XmlDocument.parse(xmlResponse.content());
       var n = xmlData.findAllElements('friendlyName');
-      map["name"] = n.first.innerText;
-      map["get"] = true;
+      c.name = n.first.innerText;
+      c.get = true;
     }catch(any){
+      //pass every error
     }
-    return map;
+    return c;
   }  
 }
+
+class CameraDataPayload{
+  bool get;
+  String name;
+  CameraDataPayload({
+    required this.get,
+    required this.name,
+  });
+}
+
+
 
 /*
 void main(List<String> args) async {
