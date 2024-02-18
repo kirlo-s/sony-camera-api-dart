@@ -1,11 +1,8 @@
-import "package:requests/requests.dart";
-import "package:sony_camera_api/camera.dart";
-
 import "core.dart";
 
 class Action{
   String endpoint;
-  Action(String this.endpoint);
+  Action(this.endpoint);
 
   Future<APIListPayload> getAvailableApiList() async{
     String method = "getAvailableApiList";
@@ -139,17 +136,17 @@ class Action{
     String v;
     int r = 0;
     switch(type){
-      case ContentType.nonPpecified:
+      case ContentType.nonSpecified:
         t = null;
         break;
       case ContentType.still:
-        t = "still";
+        t = ["still"];
         break;
       case ContentType.mp4:
-        t = "movie_mp4";
+        t = ["movie_mp4"];
         break;
       case ContentType.xavcs:
-        t = "movie_xavcs";
+        t = ["movie_xavcs"];
         break;
       default:
         t = null;
@@ -187,17 +184,17 @@ class Action{
     String v;
     String s;
     switch(type){
-      case ContentType.nonPpecified:
+      case ContentType.nonSpecified:
         t = null;
         break;
       case ContentType.still:
-        t = "still";
+        t = ["still"];
         break;
       case ContentType.mp4:
-        t = "movie_mp4";
+        t = ["movie_mp4"];
         break;
       case ContentType.xavcs:
-        t = "movie_xavcs";
+        t = ["movie_xavcs"];
         break;
       default:
         t = null;
@@ -242,5 +239,4 @@ class Action{
     ContentListPayload payload = ContentListPayload(responce);
     return payload;
   }
-
 }

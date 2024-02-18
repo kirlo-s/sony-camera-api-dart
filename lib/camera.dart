@@ -1,7 +1,7 @@
 library sony_camera_api;
 
 import 'dart:io';
-import 'package:sony_camera_api/core.dart';
+import 'core.dart';
 import 'package:udp/udp.dart';
 import 'package:xml/xml.dart';
 import 'package:requests/requests.dart';
@@ -27,6 +27,7 @@ class Camera{
     if(endpoint.isNotEmpty){
       action = Action(endpoint);
     }
+    action.setCameraFunction(CameraFunction.remoteShooting);
     return data;
   }
 

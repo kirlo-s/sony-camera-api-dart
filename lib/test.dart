@@ -40,11 +40,28 @@ void main(List<String> args) async {
   var source = await camera.action.getSource();
   print(source.source);
   var uri = "storage:memoryCard1";
-  ContentCountPayload payload = await camera.action.getContentCount(source.source, ContentType.nonPpecified, ContentView.date, false);
-  print(payload.status);
-  ContentListPayload c = await camera.action.getContentList(uri,0,100,ContentType.still,ContentView.date,ContentSort.ascending);
+  var uri_folder = "storage:memoryCard1?path=2024-02-18";
+  ContentCountPayload payload = await camera.action.getContentCount(uri, ContentType.nonSpecified, ContentView.flat, false);
+  print(payload.contentCount);
+  ContentListPayload c = await camera.action.getContentList(uri_folder,0,10,ContentType.nonSpecified,ContentView.date,ContentSort.descending);
   print(c.responce);
+  print(c.status);
+  print(c.list);
+  for(dynamic d in c.list){
+    switch(d.type){
+      case DataType.still:
+        d as StillData;
+        print(d.originalUrl);
+      case DataType.movie:
+        d as MovieData;
+        print(d.originalUrl);
+      case DataType.directory:
+        d as DirectoryData;
+        print(d.uri);
+    }
+  }
 
+  s = await camera.action.setCameraFunction(CameraFunction.remoteShooting);
   s = await camera.action.stopRecMode();
   return;
 }

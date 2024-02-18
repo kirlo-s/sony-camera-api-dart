@@ -2,9 +2,10 @@ import "package:requests/requests.dart";
 
 enum ResponceStatus {success,illegalArgument,illegalRequest,noSuchMethod_,otherErrors}
 enum CameraFunction {remoteShooting,contentsTransfer,otherFunction}
-enum ContentType {nonPpecified,still,mp4,xavcs}
+enum ContentType {nonSpecified,still,mp4,xavcs}
 enum ContentView {date,flat}
 enum ContentSort {ascending,descending}
+enum DataType {still,movie,directory}
 
 class Core{
   static String getavContentUrl(String url) {
@@ -172,24 +173,23 @@ class ContentCountPayload extends CameraStatusPayload{
   }
 }
 
-class StillImageData{
+class StillData {
+  DataType type = DataType.still;
   late String uri;
   late String fileName;
-  late String format;
   late String originalUrl;
   late String smallUrl;
   late String largeUrl;
   late String thumbnailUrl;
   late DateTime createdTime;
 
-  StillImageData(Map<String,dynamic> imageData){
+  StillData(Map<String,dynamic> imageData){
     _parseFromResult(imageData);
   }
 
   void _parseFromResult(Map<String,dynamic> data){
     uri = data["uri"];
     fileName = data["content"]["original"][0]["fileName"];
-    format = data["content"]["original"][0]["stillObject"];
     originalUrl = data["content"]["original"][0]["url"];
     smallUrl = data["content"]["smallUrl"];
     largeUrl = data["content"]["largeUrl"];
@@ -198,13 +198,74 @@ class StillImageData{
   }
 }
 
+class MovieData {
+  DataType type = DataType.movie;
+  late String uri;
+  late String fileName;
+  late String originalUrl;
+  late String thumbnailUrl;
+  late DateTime createdTime;
+
+  MovieData(Map<String,dynamic> imageData){
+    _parseFromResult(imageData);
+  }
+
+  void _parseFromResult(Map<String,dynamic> data){
+    uri = data["uri"];
+    fileName = data["content"]["original"][0]["fileName"];
+
+    originalUrl = data["content"]["original"][0]["url"];
+    thumbnailUrl = data["content"]["thumbnailUrl"];
+    createdTime = DateTime.parse(data["createdTime"]);
+  }
+}
+
+class DirectoryData {
+  DataType type = DataType.directory;
+  late String uri;
+  late String directoryName;
+
+  DirectoryData(Map<String,dynamic> imageData){
+    _parseFromResult(imageData);
+  }
+
+  void _parseFromResult(Map<String,dynamic> data){
+    uri = data["uri"];
+    directoryName = data["title"];
+  }
+}
+
+
+
+
 class ContentListPayload extends CameraStatusPayload{
-  List<StillImageData> list = [];
+  List<dynamic> list = [];
   late Map<String,dynamic> responce;
   ContentListPayload(this.responce):super(responce){
     _setList(responce);
   }
   void _setList(Map<String,dynamic>responce){
-    
+    if(status == ResponceStatus.success){
+      List<dynamic> responcel = responce["result"][0];
+      dynamic data;
+      for(dynamic item in responcel){
+        String contentKind = item["contentKind"];
+        switch(contentKind){
+          case "still":
+            data = StillData(item);
+            break;
+          case "movie_mp4" || "movie_xavcs":
+            data = MovieData(item);
+            break;
+          case "directory":
+            data = DirectoryData(item);
+            break;
+          default:
+            data = StillData(item);
+            break;
+        }
+        list.add(data);
+      }
+    }
   }
 }
