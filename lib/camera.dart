@@ -77,7 +77,7 @@ class Camera{
       var device = xmlData.findAllElements('modelName');
       if(device.first.innerText != "SonyImagingDevice"){
         print("device is not sony Camera");
-        return endpoint;
+        return "";
       };
       endpoint = url.first.innerText;
     }catch(any){
