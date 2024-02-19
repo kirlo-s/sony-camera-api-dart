@@ -74,11 +74,6 @@ class Camera{
       var xmlResponse = await Requests.get(xml_url);
       var xmlData = XmlDocument.parse(xmlResponse.content());
       var url = xmlData.findAllElements('av:X_ScalarWebAPI_ActionList_URL');
-      var device = xmlData.findAllElements('modelName');
-      if(device.first.innerText != "SonyImagingDevice"){
-        print("device is not sony Camera");
-        return "";
-      };
       endpoint = url.first.innerText;
     }catch(any){
       endpoint = "";
@@ -91,9 +86,16 @@ class Camera{
     try{
       var xmlResponse = await Requests.get(xml_url);
       var xmlData = XmlDocument.parse(xmlResponse.content());
-      var n = xmlData.findAllElements('friendlyName');
-      c.name = n.first.innerText;
-      c.get = true;
+      var device = xmlData.findAllElements('modelName');
+      if(device.first.innerText == "SonyImagingDevice"){
+        var n = xmlData.findAllElements('friendlyName');
+        c.name = n.first.innerText;
+        c.get = true;
+      }else{
+        print("device is not sony Camera");
+        c.get = false;
+        c.name = "";
+      }
     }catch(any){
       //pass every error
     }
