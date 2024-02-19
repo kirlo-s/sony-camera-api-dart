@@ -12,10 +12,12 @@ class Camera{
   final SSDP_PORT = 1900;
   String endpoint = "";
   late Action action;
+  bool isInitialized = false;
 
   void initializeDirectly(String endpoint){
     this.endpoint = endpoint;
     action = Action(this.endpoint);
+    isInitialized = true;
     action.setCameraFunction(CameraFunction.remoteShooting);
   }
   
@@ -27,6 +29,7 @@ class Camera{
     if(endpoint.isNotEmpty){
       action = Action(endpoint);
     }
+    isInitialized = true;
     action.setCameraFunction(CameraFunction.remoteShooting);
     return data;
   }
