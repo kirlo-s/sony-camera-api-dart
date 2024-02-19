@@ -21,7 +21,6 @@ class Camera{
     this.customName = customName;
     this.modelName = modelName;
     action = Action(this.endpoint);
-    action.setCameraFunction(CameraFunction.remoteShooting);
   }
   
   Future<CameraDataPayload> searchCamera(int timeout) async {
@@ -32,7 +31,6 @@ class Camera{
     if(endpoint.isNotEmpty){
       action = Action(endpoint);
     }
-    action.setCameraFunction(CameraFunction.remoteShooting);
     return data;
   }
 
