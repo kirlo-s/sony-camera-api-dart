@@ -13,11 +13,14 @@ class Camera{
   String endpoint = "";
   late Action action;
   bool isInitialized = false;
+  String customName = "";
+  String modelName = "";
 
-  void initializeDirectly(String endpoint){
+  void initializeDirectly(String endpoint,String customName,String modelName){
     this.endpoint = endpoint;
+    this.customName = customName;
+    this.modelName = modelName;
     action = Action(this.endpoint);
-    isInitialized = true;
     action.setCameraFunction(CameraFunction.remoteShooting);
   }
   
@@ -29,7 +32,6 @@ class Camera{
     if(endpoint.isNotEmpty){
       action = Action(endpoint);
     }
-    isInitialized = true;
     action.setCameraFunction(CameraFunction.remoteShooting);
     return data;
   }

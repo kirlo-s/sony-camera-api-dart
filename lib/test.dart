@@ -29,7 +29,7 @@ void main(List<String> args) async {
   Camera camera = Camera();
   //CameraDataPayload f = await camera.searchCamera(60);
   
-  camera.initializeDirectly("http://192.168.122.1:8080/sony");
+  camera.initializeDirectly("http://192.168.122.1:8080/sony","","");
   
   CameraStatusPayload s = await camera.action.startRecMode();
   print(s.status);
