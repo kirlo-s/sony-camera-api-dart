@@ -74,6 +74,11 @@ class Camera{
       var xmlResponse = await Requests.get(xml_url);
       var xmlData = XmlDocument.parse(xmlResponse.content());
       var url = xmlData.findAllElements('av:X_ScalarWebAPI_ActionList_URL');
+      var device = xmlData.findAllElements('modelName');
+      if(device.first.innerText != "SonyImagingDevice"){
+        print("device is not sony Camera");
+        return endpoint;
+      };
       endpoint = url.first.innerText;
     }catch(any){
       endpoint = "";

@@ -25,6 +25,14 @@ void main() async{
   print(json);
 }
 */
+
+void main() async{
+  Camera camera = Camera();
+  CameraDataPayload f = await camera.searchCamera(60);
+}
+
+
+/*
 void main(List<String> args) async {
   Camera camera = Camera();
   //CameraDataPayload f = await camera.searchCamera(60);
@@ -65,3 +73,4 @@ void main(List<String> args) async {
   s = await camera.action.stopRecMode();
   return;
 }
+*/
