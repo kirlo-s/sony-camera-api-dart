@@ -79,13 +79,13 @@ class CameraStatusPayload{
 }
 
 class APIListPayload extends CameraStatusPayload{
-  late List<String> apiList;
+  late List<dynamic> apiList;
   APIListPayload(Map<String,dynamic> responce): super(responce){
     _setList(responce);
   }
   void _setList(Map<String,dynamic> responce){
     if(status == ResponceStatus.success){
-      apiList = responce["result"][0] as List<String>;
+      apiList = responce["result"][0];
     }else{
       apiList = [];
     }
