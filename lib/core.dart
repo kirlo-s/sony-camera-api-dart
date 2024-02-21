@@ -85,7 +85,7 @@ class APIListPayload extends CameraStatusPayload{
   }
   void _setList(Map<String,dynamic> responce){
     if(status == ResponceStatus.success){
-      apiList = responce["result"][0];
+      apiList = responce["result"][0] as List<String>;
     }else{
       apiList = [];
     }
@@ -234,9 +234,6 @@ class DirectoryData {
     directoryName = data["title"];
   }
 }
-
-
-
 
 class ContentListPayload extends CameraStatusPayload{
   List<dynamic> list = [];
