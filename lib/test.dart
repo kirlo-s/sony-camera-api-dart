@@ -26,13 +26,8 @@ void main() async{
 }
 */
 
-void main() async{
-  Camera camera = Camera();
-  CameraDataPayload f = await camera.searchCamera(60);
-}
 
 
-/*
 void main(List<String> args) async {
   Camera camera = Camera();
   //CameraDataPayload f = await camera.searchCamera(60);
@@ -48,10 +43,10 @@ void main(List<String> args) async {
   var source = await camera.action.getSource();
   print(source.source);
   var uri = "storage:memoryCard1";
-  var uri_folder = "storage:memoryCard1?path=2024-02-18";
+  var uri_folder = "storage:memoryCard1?path=2024-02-24";
   ContentCountPayload payload = await camera.action.getContentCount(uri, ContentType.nonSpecified, ContentView.flat, false);
   print(payload.contentCount);
-  ContentListPayload c = await camera.action.getContentList(uri_folder,0,10,ContentType.nonSpecified,ContentView.date,ContentSort.descending);
+  ContentListPayload c = await camera.action.getContentList(uri_folder,0,10,ContentType.still,ContentView.date,ContentSort.descending);
   print(c.responce);
   print(c.status);
   print(c.list);
@@ -73,4 +68,3 @@ void main(List<String> args) async {
   s = await camera.action.stopRecMode();
   return;
 }
-*/

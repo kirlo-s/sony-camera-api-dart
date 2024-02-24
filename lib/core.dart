@@ -173,8 +173,7 @@ class ContentCountPayload extends CameraStatusPayload{
   }
 }
 
-class StillData {
-  DataType type = DataType.still;
+class StillData extends BaseData{
   late String uri;
   late String fileName;
   late String originalUrl;
@@ -183,7 +182,7 @@ class StillData {
   late String thumbnailUrl;
   late DateTime createdTime;
 
-  StillData(Map<String,dynamic> imageData){
+  StillData(Map<String,dynamic> imageData):super(type:DataType.still){
     _parseFromResult(imageData);
   }
 
@@ -198,15 +197,14 @@ class StillData {
   }
 }
 
-class MovieData {
-  DataType type = DataType.movie;
+class MovieData extends BaseData{
   late String uri;
   late String fileName;
   late String originalUrl;
   late String thumbnailUrl;
   late DateTime createdTime;
 
-  MovieData(Map<String,dynamic> imageData){
+  MovieData(Map<String,dynamic> imageData):super(type:DataType.movie){
     _parseFromResult(imageData);
   }
 
@@ -220,12 +218,11 @@ class MovieData {
   }
 }
 
-class DirectoryData {
-  DataType type = DataType.directory;
+class DirectoryData extends BaseData {
   late String uri;
   late String directoryName;
 
-  DirectoryData(Map<String,dynamic> imageData){
+  DirectoryData(Map<String,dynamic> imageData):super(type:DataType.directory) {
     _parseFromResult(imageData);
   }
 
@@ -235,8 +232,14 @@ class DirectoryData {
   }
 }
 
+class BaseData{
+
+  DataType type;
+  
+  BaseData({required this.type});
+}
 class ContentListPayload extends CameraStatusPayload{
-  List<dynamic> list = [];
+  List<BaseData> list = [];
   late Map<String,dynamic> responce;
   ContentListPayload(this.responce):super(responce){
     _setList(responce);
